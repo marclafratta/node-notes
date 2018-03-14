@@ -3,7 +3,13 @@
 var util = require('util');
 var express = require('express');
 var router = express.Router();
-var notes = require('../models/notes-memory');
+var path  = require('path');
+var notes = require(process.env.NOTES_MODEL
+                   ? path.join('..', process.env.NOTES_MODEL)
+                   : '../models/notes-memory');
+
+const log   = require('debug')('notes:router-notes');
+const error = require('debug')('notes:error');
 
 // Add Note.
 router.get('/add', (req, res, next) => {
@@ -43,7 +49,11 @@ router.get('/view', (req, res, next) => {
         res.render('noteview', {
             title: note ? note.title : "",
             notekey: req.query.key,
-            note: note
+            note: note,
+            breadcrumbs: [
+                { href: '/', text: 'Home' },
+                { active: true, text: note.title }
+            ]
         });
     })
     .catch(err => { next(err); });
